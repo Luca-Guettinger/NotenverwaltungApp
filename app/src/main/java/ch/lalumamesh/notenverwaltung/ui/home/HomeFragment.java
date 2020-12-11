@@ -13,24 +13,27 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import ch.lalumamesh.notenverwaltung.Config;
-import ch.lalumamesh.notenverwaltung.Util;
 import ch.lalumamesh.notenverwaltung.MyApplication;
 import ch.lalumamesh.notenverwaltung.R;
+import ch.lalumamesh.notenverwaltung.Util;
 import ch.lalumamesh.notenverwaltung.model.Fach;
 import ch.lalumamesh.notenverwaltung.model.Pruefung;
 import ch.lalumamesh.notenverwaltung.model.Semester;
 import ch.lalumamesh.notenverwaltung.repository.PruefungenRepository;
 import ch.lalumamesh.notenverwaltung.repository.StammdatenRepository;
+import ch.lalumamesh.notenverwaltung.service.PruefungenService;
+import ch.lalumamesh.notenverwaltung.service.StammdatenService;
 
 public class HomeFragment extends Fragment {
-    private final StammdatenRepository stammdatenRepository;
-    private final PruefungenRepository pruefungenRepository;
-    private Semester[] semester;
-    private Fach[] faecher;
+    private final StammdatenService stammdatenService;
+    private final PruefungenService pruefungenService;
 
     public HomeFragment() {
-        stammdatenRepository = new StammdatenRepository(MyApplication.getAppContext());
-        pruefungenRepository = new PruefungenRepository(MyApplication.getAppContext());
+        StammdatenRepository stammdatenRepository = new StammdatenRepository(MyApplication.getAppContext());
+        PruefungenRepository pruefungenRepository = new PruefungenRepository(MyApplication.getAppContext());
+
+        stammdatenService = new StammdatenService(stammdatenRepository);
+        pruefungenService = new PruefungenService(pruefungenRepository);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -74,7 +77,7 @@ public class HomeFragment extends Fragment {
             }
             Pruefung pruefung = new Pruefung(null, titel.getText().toString(), noteDouble, ((Semester) semester.getSelectedItem()), ((Fach) fach.getSelectedItem()));
             System.out.println(pruefung);
-            pruefungenRepository.savePruefung(pruefung,
+            pruefungenService.savePruefung(pruefung,
                     s -> {
                         titel.getText().clear();
                         note.getText().clear();
@@ -102,8 +105,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupFaecher(View root, Spinner fach) {
-        stammdatenRepository.loadFach(faecher -> {
-            this.faecher = faecher;
+        stammdatenService.loadFach(faecher -> {
             ArrayAdapter<Fach> fachArrayAdapter = new ArrayAdapter<>(MyApplication.getAppContext(),
                     android.R.layout.simple_spinner_dropdown_item, faecher);
             fachArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -114,8 +116,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupSemester(View root, Spinner semester) {
-        stammdatenRepository.loadSemester(semesters -> {
-            this.semester = semesters;
+        stammdatenService.loadSemester(semesters -> {
             ArrayAdapter<Semester> semesterArrayAdapter = new ArrayAdapter<>(MyApplication.getAppContext(),
                     android.R.layout.simple_spinner_dropdown_item, semesters);
             semesterArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

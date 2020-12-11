@@ -1,9 +1,11 @@
 package ch.lalumamesh.notenverwaltung.model;
 
-import java.util.Date;
-
-
 public class Pruefung {
+    private Long id;
+    private String title;
+    private Double note;
+    private Semester semester;
+    private Fach fach;
     public Pruefung(Long id, String title, Double note, Semester semester, Fach fach) {
         this.id = id;
         this.title = title;
@@ -11,12 +13,6 @@ public class Pruefung {
         this.semester = semester;
         this.fach = fach;
     }
-
-    private Long id;
-    private String title;
-    private Double note;
-    private Semester semester;
-    private Fach fach;
 
     public Long getId() {
         return id;

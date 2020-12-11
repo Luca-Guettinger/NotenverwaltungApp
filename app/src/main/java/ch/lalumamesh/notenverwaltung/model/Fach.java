@@ -2,8 +2,13 @@ package ch.lalumamesh.notenverwaltung.model;
 
 
 public class Fach {
-    private Long id;
-    private String name;
+    private final Long id;
+    private final String name;
+
+    public Fach(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     @Override
     public String toString() {
@@ -16,10 +21,5 @@ public class Fach {
 
     public String getName() {
         return name;
-    }
-
-    public Fach(Long id, String name) {
-        this.id = id;
-        this.name = name;
     }
 }

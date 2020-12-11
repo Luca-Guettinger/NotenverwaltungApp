@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 public class StammdatenViewModel extends ViewModel {
 
-    private MutableLiveData<String> mText;
+    private final MutableLiveData<String> mText;
 
     public StammdatenViewModel() {
         mText = new MutableLiveData<>();

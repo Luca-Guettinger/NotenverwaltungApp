@@ -2,8 +2,13 @@ package ch.lalumamesh.notenverwaltung.model;
 
 
 public class Semester {
-    private Long id;
-    private String name;
+    private final Long id;
+    private final String name;
+
+    public Semester(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
     @Override
     public String toString() {
@@ -16,10 +21,5 @@ public class Semester {
 
     public String getName() {
         return name;
-    }
-
-    public Semester(Long id, String name) {
-        this.id = id;
-        this.name = name;
     }
 }

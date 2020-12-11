@@ -5,14 +5,13 @@ import android.content.Context;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 
 import java.io.UnsupportedEncodingException;
-import java.time.LocalDateTime;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 import ch.lalumamesh.notenverwaltung.Config;
@@ -38,13 +37,8 @@ public class PruefungenRepository {
 
             @Override
             public byte[] getBody() throws AuthFailureError {
-                try {
-                    byte[] bytes = requestBody == null ? null : requestBody.getBytes("utf-8");
-                    return bytes;
-                } catch (UnsupportedEncodingException uee) {
-                    onBodyException.accept(uee);
-                    return null;
-                }
+                byte[] bytes = requestBody == null ? null : requestBody.getBytes(StandardCharsets.UTF_8);
+                return bytes;
             }
         };
         queue.add(stringRequest);

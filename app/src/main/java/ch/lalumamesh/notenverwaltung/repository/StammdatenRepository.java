@@ -31,6 +31,7 @@ public class StammdatenRepository {
                 }, onError::accept);
         queue.add(stringRequest);
     }
+
     public void loadFach(Consumer<Fach[]> doWithFach, Consumer<VolleyError> onError) {
         RequestQueue queue = Volley.newRequestQueue(context);
 
