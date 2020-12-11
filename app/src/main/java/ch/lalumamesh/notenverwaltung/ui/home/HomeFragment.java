@@ -1,6 +1,5 @@
 package ch.lalumamesh.notenverwaltung.ui.home;
 
-import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,15 +12,8 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.snackbar.Snackbar;
-
-import java.text.ParseException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Locale;
-
 import ch.lalumamesh.notenverwaltung.Config;
+import ch.lalumamesh.notenverwaltung.Util;
 import ch.lalumamesh.notenverwaltung.MyApplication;
 import ch.lalumamesh.notenverwaltung.R;
 import ch.lalumamesh.notenverwaltung.model.Fach;
@@ -66,18 +58,18 @@ public class HomeFragment extends Fragment {
 
             if (titel.getText().toString().startsWith("http://")) {
                 Config.url = titel.getText().toString();
-                Snackbar.make(root, "Request URL wurde zu '" + titel.getText().toString() + "' angepasst.", 2000);
+                Util.DisplaySnackbar(root, "Request URL wurde zu '" + titel.getText().toString() + "' angepasst.", 2000);
                 return;
             }
 
             try {
                 noteDouble = Double.parseDouble(note.getText().toString());
                 if (noteDouble < 1 || noteDouble > 6) {
-                    Snackbar.make(root, "Note eine Zahl zwischen 1 und 6 sein.", 2000);
+                    Util.DisplaySnackbar(root, "Note eine Zahl zwischen 1 und 6 sein.", 2000);
                     return;
                 }
             } catch (NumberFormatException ex) {
-                Snackbar.make(root, "Note muss eine Zahl sein. ", 2000);
+                Util.DisplaySnackbar(root, "Note muss eine Zahl sein. ", 2000);
                 return;
             }
             Pruefung pruefung = new Pruefung(null, titel.getText().toString(), noteDouble, ((Semester) semester.getSelectedItem()), ((Fach) fach.getSelectedItem()));
@@ -86,11 +78,11 @@ public class HomeFragment extends Fragment {
                     s -> {
                         titel.getText().clear();
                         note.getText().clear();
-                        Snackbar.make(root, "Erfoglreich gespeichert", 2000);
+                        Util.DisplaySnackbar(root, "Erfoglreich gespeichert", 2000);
                     }, volleyError -> {
-                        Snackbar.make(root, "Es ist ein Fehler aufgetreten: " + volleyError.getMessage(), 2000);
+                        Util.DisplaySnackbar(root, "Es ist ein Fehler aufgetreten: " + volleyError.getMessage(), 2000);
                     }, e -> {
-                        Snackbar.make(root, "Es ist ein Fehler aufgetreten: " + e.getMessage(), 2000);
+                        Util.DisplaySnackbar(root, "Es ist ein Fehler aufgetreten: " + e.getMessage(), 2000);
                         e.printStackTrace();
                     });
         });
@@ -98,12 +90,12 @@ public class HomeFragment extends Fragment {
 
     private boolean checkEmpty(View root, EditText titel, EditText note) {
         if (titel.getText().toString().isEmpty()) {
-            Snackbar.make(root, "Titel darf nicht Leer sein. ", 2000);
+            Util.DisplaySnackbar(root, "Titel darf nicht Leer sein. ", 2000);
             return true;
         }
         if (note.getText().toString().isEmpty()) {
             Config.url = titel.getText().toString();
-            Snackbar.make(root, "Note darf nicht Leer sein. ", 2000);
+            Util.DisplaySnackbar(root, "Note darf nicht Leer sein. ", 2000);
             return true;
         }
         return false;
@@ -117,7 +109,7 @@ public class HomeFragment extends Fragment {
             fachArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             fach.setAdapter(fachArrayAdapter);
         }, volleyError -> {
-            Snackbar.make(root, "Fehler beim laden der Faecher, ist das Backend verfügbar? ", 2000);
+            Util.DisplaySnackbar(root, "Fehler beim laden der Faecher, ist das Backend verfügbar? ", 2000);
         });
     }
 
@@ -129,7 +121,7 @@ public class HomeFragment extends Fragment {
             semesterArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             semester.setAdapter(semesterArrayAdapter);
         }, volleyError -> {
-            Snackbar.make(root, "Fehler beim laden der Semester, ist das Backend verfügbar? ", 2000);
+            Util.DisplaySnackbar(root, "Fehler beim laden der Semester, ist das Backend verfügbar? ", 2000);
         });
     }
 }
