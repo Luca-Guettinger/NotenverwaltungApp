@@ -12,7 +12,6 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import ch.lalumamesh.notenverwaltung.Config;
 import ch.lalumamesh.notenverwaltung.MyApplication;
 import ch.lalumamesh.notenverwaltung.R;
 import ch.lalumamesh.notenverwaltung.Util;
@@ -55,27 +54,15 @@ public class HomeFragment extends Fragment {
 
     private void setupButton(View root, Spinner semester, Spinner fach, EditText titel, EditText note, Button button) {
         button.setOnClickListener(v -> {
-            double noteDouble;
-
-            if (checkEmpty(root, titel, note)) return;
-
-            if (titel.getText().toString().startsWith("http://")) {
-                Config.url = titel.getText().toString();
-                Util.DisplaySnackbar(root, "Request URL wurde zu '" + titel.getText().toString() + "' angepasst.", 2000);
+            Semester selectedSemester = (Semester) semester.getSelectedItem();
+            Fach selectedFach = (Fach) fach.getSelectedItem();
+            String errorText = pruefungenService.isValid(titel.getText().toString(), note.getText().toString(), selectedSemester, selectedFach);
+            if (!errorText.isEmpty()) {
+                Util.DisplaySnackbar(root, errorText, 2000);
                 return;
             }
 
-            try {
-                noteDouble = Double.parseDouble(note.getText().toString());
-                if (noteDouble < 1 || noteDouble > 6) {
-                    Util.DisplaySnackbar(root, "Note eine Zahl zwischen 1 und 6 sein.", 2000);
-                    return;
-                }
-            } catch (NumberFormatException ex) {
-                Util.DisplaySnackbar(root, "Note muss eine Zahl sein. ", 2000);
-                return;
-            }
-            Pruefung pruefung = new Pruefung(null, titel.getText().toString(), noteDouble, ((Semester) semester.getSelectedItem()), ((Fach) fach.getSelectedItem()));
+            Pruefung pruefung = new Pruefung(null, titel.getText().toString(), Double.parseDouble(note.getText().toString()), selectedSemester, selectedFach);
             System.out.println(pruefung);
             pruefungenService.savePruefung(pruefung,
                     s -> {
@@ -89,19 +76,6 @@ public class HomeFragment extends Fragment {
                         e.printStackTrace();
                     });
         });
-    }
-
-    private boolean checkEmpty(View root, EditText titel, EditText note) {
-        if (titel.getText().toString().isEmpty()) {
-            Util.DisplaySnackbar(root, "Titel darf nicht Leer sein. ", 2000);
-            return true;
-        }
-        if (note.getText().toString().isEmpty()) {
-            Config.url = titel.getText().toString();
-            Util.DisplaySnackbar(root, "Note darf nicht Leer sein. ", 2000);
-            return true;
-        }
-        return false;
     }
 
     private void setupFaecher(View root, Spinner fach) {

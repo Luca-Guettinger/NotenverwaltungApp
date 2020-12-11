@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
+import ch.lalumamesh.notenverwaltung.Config;
+import ch.lalumamesh.notenverwaltung.Util;
 import ch.lalumamesh.notenverwaltung.model.Fach;
 import ch.lalumamesh.notenverwaltung.model.Pruefung;
 import ch.lalumamesh.notenverwaltung.model.Semester;
@@ -25,6 +27,30 @@ public class PruefungenService {
 
     public void loadPruefungen(Consumer<Pruefung[]> doWithPruefungen, Consumer<VolleyError> onError) {
         pruefungenRepository.loadPruefungen(doWithPruefungen, onError);
+    }
+
+    public String isValid(String titel, String note, Semester semester, Fach fach) {
+        if (titel.isEmpty()) {
+            return "Titel darf nicht Leer sein. ";
+        }
+        if (note.isEmpty()) {
+            return"Note darf nicht Leer sein. ";
+        }
+
+        if (titel.startsWith("http://")) { //dieser code ist notfall code falls beim testen die URL zum Backend Service angepasst werden muss.
+            Config.url = titel;
+            return "Request URL wurde zu '" + titel + "' angepasst.";
+        }
+
+        try {
+            double noteDouble = Double.parseDouble(note);
+            if (noteDouble < 1 || noteDouble > 6) {
+                return "Note eine Zahl zwischen 1 und 6 sein.";
+            }
+        } catch (NumberFormatException ex) {
+            return "Note muss eine Zahl sein.";
+        }
+        return "";
     }
 
     public List<String> convertToView(Pruefung[] pruefungen) {
