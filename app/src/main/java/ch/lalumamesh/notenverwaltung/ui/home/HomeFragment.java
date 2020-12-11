@@ -1,26 +1,135 @@
 package ch.lalumamesh.notenverwaltung.ui.home;
 
+import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.snackbar.Snackbar;
+
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
+
+import ch.lalumamesh.notenverwaltung.Config;
+import ch.lalumamesh.notenverwaltung.MyApplication;
 import ch.lalumamesh.notenverwaltung.R;
+import ch.lalumamesh.notenverwaltung.model.Fach;
+import ch.lalumamesh.notenverwaltung.model.Pruefung;
+import ch.lalumamesh.notenverwaltung.model.Semester;
+import ch.lalumamesh.notenverwaltung.repository.PruefungenRepository;
+import ch.lalumamesh.notenverwaltung.repository.StammdatenRepository;
 
 public class HomeFragment extends Fragment {
+    private final StammdatenRepository stammdatenRepository;
+    private final PruefungenRepository pruefungenRepository;
+    private Semester[] semester;
+    private Fach[] faecher;
 
-    private HomeViewModel homeViewModel;
+    public HomeFragment() {
+        stammdatenRepository = new StammdatenRepository(MyApplication.getAppContext());
+        pruefungenRepository = new PruefungenRepository(MyApplication.getAppContext());
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
+        Spinner semester = root.findViewById(R.id.spinner_semester);
+        Spinner fach = root.findViewById(R.id.spinner_fach);
+        EditText titel = root.findViewById(R.id.text_title);
+        EditText note = root.findViewById(R.id.number_note);
+
+        Button button = root.findViewById(R.id.button_save);
+
+        setupButton(root, semester, fach, titel, note, button);
+
+        setupSemester(root, semester);
+        setupFaecher(root, fach);
         return root;
+    }
+
+    private void setupButton(View root, Spinner semester, Spinner fach, EditText titel, EditText note, Button button) {
+        button.setOnClickListener(v -> {
+            double noteDouble;
+
+            if (checkEmpty(root, titel, note)) return;
+
+            if (titel.getText().toString().startsWith("http://")) {
+                Config.url = titel.getText().toString();
+                Snackbar.make(root, "Request URL wurde zu '" + titel.getText().toString() + "' angepasst.", 2000);
+                return;
+            }
+
+            try {
+                noteDouble = Double.parseDouble(note.getText().toString());
+                if (noteDouble < 1 || noteDouble > 6) {
+                    Snackbar.make(root, "Note eine Zahl zwischen 1 und 6 sein.", 2000);
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                Snackbar.make(root, "Note muss eine Zahl sein. ", 2000);
+                return;
+            }
+            Pruefung pruefung = new Pruefung(null, titel.getText().toString(), noteDouble, ((Semester) semester.getSelectedItem()), ((Fach) fach.getSelectedItem()));
+            System.out.println(pruefung);
+            pruefungenRepository.savePruefung(pruefung,
+                    s -> {
+                        titel.getText().clear();
+                        note.getText().clear();
+                        Snackbar.make(root, "Erfoglreich gespeichert", 2000);
+                    }, volleyError -> {
+                        Snackbar.make(root, "Es ist ein Fehler aufgetreten: " + volleyError.getMessage(), 2000);
+                    }, e -> {
+                        Snackbar.make(root, "Es ist ein Fehler aufgetreten: " + e.getMessage(), 2000);
+                        e.printStackTrace();
+                    });
+        });
+    }
+
+    private boolean checkEmpty(View root, EditText titel, EditText note) {
+        if (titel.getText().toString().isEmpty()) {
+            Snackbar.make(root, "Titel darf nicht Leer sein. ", 2000);
+            return true;
+        }
+        if (note.getText().toString().isEmpty()) {
+            Config.url = titel.getText().toString();
+            Snackbar.make(root, "Note darf nicht Leer sein. ", 2000);
+            return true;
+        }
+        return false;
+    }
+
+    private void setupFaecher(View root, Spinner fach) {
+        stammdatenRepository.loadFach(faecher -> {
+            this.faecher = faecher;
+            ArrayAdapter<Fach> fachArrayAdapter = new ArrayAdapter<>(MyApplication.getAppContext(),
+                    android.R.layout.simple_spinner_dropdown_item, faecher);
+            fachArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            fach.setAdapter(fachArrayAdapter);
+        }, volleyError -> {
+            Snackbar.make(root, "Fehler beim laden der Faecher, ist das Backend verfügbar? ", 2000);
+        });
+    }
+
+    private void setupSemester(View root, Spinner semester) {
+        stammdatenRepository.loadSemester(semesters -> {
+            this.semester = semesters;
+            ArrayAdapter<Semester> semesterArrayAdapter = new ArrayAdapter<>(MyApplication.getAppContext(),
+                    android.R.layout.simple_spinner_dropdown_item, semesters);
+            semesterArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            semester.setAdapter(semesterArrayAdapter);
+        }, volleyError -> {
+            Snackbar.make(root, "Fehler beim laden der Semester, ist das Backend verfügbar? ", 2000);
+        });
     }
 }
