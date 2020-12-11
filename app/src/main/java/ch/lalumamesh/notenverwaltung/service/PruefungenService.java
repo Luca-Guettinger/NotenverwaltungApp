@@ -61,21 +61,17 @@ public class PruefungenService {
             }
         }
         result.add("======");
-        result.add(prettyPrint("Gesamter Schnitt: ", calculateAverageOverall(semesterFachPruefungenMap)));
+        result.add(prettyPrint("Gesamter Schnitt: ", calculateAverageOverall(pruefungen)));
 
         return result;
     }
 
-    public static double calculateAverageOverall(HashMap<Long, HashMap<Long, List<Pruefung>>> map) {
+    public static double calculateAverageOverall(Pruefung[] pruefungArray) {
         double note = 0;
         double amount = 0;
-        for (HashMap<Long, List<Pruefung>> value : map.values()) {
-            for (List<Pruefung> pruefungList : value.values()) {
-                for (Pruefung pruefung : pruefungList) {
-                    note += pruefung.getNote();
-                    amount++;
-                }
-            }
+        for (Pruefung pruefung : pruefungArray) {
+            note += pruefung.getNote();
+            amount++;
         }
         return note / amount;
     }

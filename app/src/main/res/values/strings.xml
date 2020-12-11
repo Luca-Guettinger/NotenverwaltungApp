@@ -3,4 +3,6 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Stammdaten</string>
     <string name="title_notifications">Prüfungen</string>
+    <string name="widget_title">Notenverwaltung</string>
+    <string name="add_widget">Add widget</string>
 </resources>
